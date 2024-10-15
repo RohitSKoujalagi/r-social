@@ -1,0 +1,335 @@
+{
+    "_firestore": {
+        "app": {
+            "_isDeleted": false,
+            "_options": {
+                "apiKey": "AIzaSyBI7getH_fChUe0QQDJdlx5Opsrrmnm9M0",
+                "authDomain": "r-social-f2ef8.firebaseapp.com",
+                "databaseURL": "https://r-social-f2ef8-default-rtdb.asia-southeast1.firebasedatabase.app",
+                "projectId": "r-social-f2ef8",
+                "storageBucket": "r-social-f2ef8.appspot.com",
+                "messagingSenderId": "364260354059",
+                "appId": "1:364260354059:web:9861d4323431c776e7ff0e",
+                "measurementId": "G-L49PRTPQLR"
+            },
+            "_config": {
+                "name": "[DEFAULT]",
+                "automaticDataCollectionEnabled": false
+            },
+            "_name": "[DEFAULT]",
+            "_automaticDataCollectionEnabled": false,
+            "_container": {
+                "name": "[DEFAULT]",
+                "providers": {}
+            }
+        },
+        "databaseId": {
+            "projectId": "r-social-f2ef8",
+            "database": "(default)"
+        },
+        "settings": {
+            "host": "firestore.googleapis.com",
+            "ssl": true,
+            "ignoreUndefinedProperties": false,
+            "cacheSizeBytes": 41943040,
+            "experimentalForceLongPolling": false,
+            "experimentalAutoDetectLongPolling": true,
+            "experimentalLongPollingOptions": {},
+            "useFetchStreams": true
+        }
+    },
+    "_userDataWriter": {
+        "firestore": {
+            "app": {
+                "_isDeleted": false,
+                "_options": {
+                    "apiKey": "AIzaSyBI7getH_fChUe0QQDJdlx5Opsrrmnm9M0",
+                    "authDomain": "r-social-f2ef8.firebaseapp.com",
+                    "databaseURL": "https://r-social-f2ef8-default-rtdb.asia-southeast1.firebasedatabase.app",
+                    "projectId": "r-social-f2ef8",
+                    "storageBucket": "r-social-f2ef8.appspot.com",
+                    "messagingSenderId": "364260354059",
+                    "appId": "1:364260354059:web:9861d4323431c776e7ff0e",
+                    "measurementId": "G-L49PRTPQLR"
+                },
+                "_config": {
+                    "name": "[DEFAULT]",
+                    "automaticDataCollectionEnabled": false
+                },
+                "_name": "[DEFAULT]",
+                "_automaticDataCollectionEnabled": false,
+                "_container": {
+                    "name": "[DEFAULT]",
+                    "providers": {}
+                }
+            },
+            "databaseId": {
+                "projectId": "r-social-f2ef8",
+                "database": "(default)"
+            },
+            "settings": {
+                "host": "firestore.googleapis.com",
+                "ssl": true,
+                "ignoreUndefinedProperties": false,
+                "cacheSizeBytes": 41943040,
+                "experimentalForceLongPolling": false,
+                "experimentalAutoDetectLongPolling": true,
+                "experimentalLongPollingOptions": {},
+                "useFetchStreams": true
+            }
+        }
+    },
+    "_snapshot": {
+        "query": {
+            "path": {
+                "segments": [
+                    "users"
+                ],
+                "offset": 0,
+                "len": 1
+            },
+            "collectionGroup": null,
+            "explicitOrderBy": [],
+            "filters": [
+                {
+                    "field": {
+                        "segments": [
+                            "uid"
+                        ],
+                        "offset": 0,
+                        "len": 1
+                    },
+                    "op": "==",
+                    "value": {
+                        "stringValue": "GhrHw2cDAfhJpZlGHNW5jmhiDG43"
+                    }
+                }
+            ],
+            "limit": null,
+            "limitType": "F",
+            "startAt": null,
+            "endAt": null,
+            "ce": [
+                {
+                    "field": {
+                        "segments": [
+                            "__name__"
+                        ],
+                        "offset": 0,
+                        "len": 1
+                    },
+                    "dir": "asc"
+                }
+            ],
+            "le": {
+                "path": {
+                    "segments": [
+                        "users"
+                    ],
+                    "offset": 0,
+                    "len": 1
+                },
+                "collectionGroup": null,
+                "orderBy": [
+                    {
+                        "field": {
+                            "segments": [
+                                "__name__"
+                            ],
+                            "offset": 0,
+                            "len": 1
+                        },
+                        "dir": "asc"
+                    }
+                ],
+                "filters": [
+                    {
+                        "field": {
+                            "segments": [
+                                "uid"
+                            ],
+                            "offset": 0,
+                            "len": 1
+                        },
+                        "op": "==",
+                        "value": {
+                            "stringValue": "GhrHw2cDAfhJpZlGHNW5jmhiDG43"
+                        }
+                    }
+                ],
+                "limit": null,
+                "startAt": null,
+                "endAt": null,
+                "ue": "users|f:uid==GhrHw2cDAfhJpZlGHNW5jmhiDG43|ob:__name__asc"
+            },
+            "he": null
+        },
+        "docs": {
+            "keyedMap": {
+                "root": {
+                    "size": 0
+                }
+            },
+            "sortedSet": {
+                "root": {
+                    "size": 0
+                }
+            }
+        },
+        "oldDocs": {
+            "keyedMap": {
+                "root": {
+                    "size": 0
+                }
+            },
+            "sortedSet": {
+                "root": {
+                    "size": 0
+                }
+            }
+        },
+        "docChanges": [],
+        "mutatedKeys": {
+            "data": {
+                "root": {
+                    "size": 0
+                }
+            }
+        },
+        "fromCache": false,
+        "syncStateChanged": true,
+        "excludesMetadataChanges": false,
+        "hasCachedResults": true
+    },
+    "metadata": {
+        "hasPendingWrites": false,
+        "fromCache": false
+    },
+    "query": {
+        "converter": null,
+        "_query": {
+            "path": {
+                "segments": [
+                    "users"
+                ],
+                "offset": 0,
+                "len": 1
+            },
+            "collectionGroup": null,
+            "explicitOrderBy": [],
+            "filters": [
+                {
+                    "field": {
+                        "segments": [
+                            "uid"
+                        ],
+                        "offset": 0,
+                        "len": 1
+                    },
+                    "op": "==",
+                    "value": {
+                        "stringValue": "GhrHw2cDAfhJpZlGHNW5jmhiDG43"
+                    }
+                }
+            ],
+            "limit": null,
+            "limitType": "F",
+            "startAt": null,
+            "endAt": null,
+            "ce": [
+                {
+                    "field": {
+                        "segments": [
+                            "__name__"
+                        ],
+                        "offset": 0,
+                        "len": 1
+                    },
+                    "dir": "asc"
+                }
+            ],
+            "le": {
+                "path": {
+                    "segments": [
+                        "users"
+                    ],
+                    "offset": 0,
+                    "len": 1
+                },
+                "collectionGroup": null,
+                "orderBy": [
+                    {
+                        "field": {
+                            "segments": [
+                                "__name__"
+                            ],
+                            "offset": 0,
+                            "len": 1
+                        },
+                        "dir": "asc"
+                    }
+                ],
+                "filters": [
+                    {
+                        "field": {
+                            "segments": [
+                                "uid"
+                            ],
+                            "offset": 0,
+                            "len": 1
+                        },
+                        "op": "==",
+                        "value": {
+                            "stringValue": "GhrHw2cDAfhJpZlGHNW5jmhiDG43"
+                        }
+                    }
+                ],
+                "limit": null,
+                "startAt": null,
+                "endAt": null,
+                "ue": "users|f:uid==GhrHw2cDAfhJpZlGHNW5jmhiDG43|ob:__name__asc"
+            },
+            "he": null
+        },
+        "type": "query",
+        "firestore": {
+            "app": {
+                "_isDeleted": false,
+                "_options": {
+                    "apiKey": "AIzaSyBI7getH_fChUe0QQDJdlx5Opsrrmnm9M0",
+                    "authDomain": "r-social-f2ef8.firebaseapp.com",
+                    "databaseURL": "https://r-social-f2ef8-default-rtdb.asia-southeast1.firebasedatabase.app",
+                    "projectId": "r-social-f2ef8",
+                    "storageBucket": "r-social-f2ef8.appspot.com",
+                    "messagingSenderId": "364260354059",
+                    "appId": "1:364260354059:web:9861d4323431c776e7ff0e",
+                    "measurementId": "G-L49PRTPQLR"
+                },
+                "_config": {
+                    "name": "[DEFAULT]",
+                    "automaticDataCollectionEnabled": false
+                },
+                "_name": "[DEFAULT]",
+                "_automaticDataCollectionEnabled": false,
+                "_container": {
+                    "name": "[DEFAULT]",
+                    "providers": {}
+                }
+            },
+            "databaseId": {
+                "projectId": "r-social-f2ef8",
+                "database": "(default)"
+            },
+            "settings": {
+                "host": "firestore.googleapis.com",
+                "ssl": true,
+                "ignoreUndefinedProperties": false,
+                "cacheSizeBytes": 41943040,
+                "experimentalForceLongPolling": false,
+                "experimentalAutoDetectLongPolling": true,
+                "experimentalLongPollingOptions": {},
+                "useFetchStreams": true
+            }
+        }
+    }
+}
