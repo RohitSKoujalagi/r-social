@@ -30,25 +30,9 @@ export default function SocialMediaForm() {
 
   const {currentUser,registerUzer,loginWithProvider,setCurrentUser,db,isFirstLogin}=useAuth();
 
-  const transformCloudinaryURL = (url) => {
 
-    if(url==="https://i.pinimg.com/736x/90/d1/ac/90d1ac48711f63c6a290238c8382632f.jpg")
-    {
-      return url;
-    }
-    // Define the transformations you want to apply
-    const transformations = 'q_auto,f_auto,h_500,w_500,c_auto';
-  
-    // Find the index where '/upload' occurs
-    const uploadIndex = url.indexOf('/upload') + '/upload'.length;
-  
-    // Insert the transformations right after '/upload'
-    const transformedURL = url.slice(0, uploadIndex) + `/${transformations}` + url.slice(uploadIndex);
-  
-    return transformedURL;
-  };
 
-  const {setIsFirstLogin}=useUsers()
+  const {setIsFirstLogin,transformCloudinaryURL}=useUsers()
   const srcSetter=()=>{
     if(currentUser)
     {
@@ -129,14 +113,14 @@ export default function SocialMediaForm() {
 
   const onSubmit = async(data) => {
     //console.log(data);
-    setUploadStatus("Uploading...");
+    setUploadStatus("Updating...");
     if (profilePic) {
       try {
-        setUploadStatus("Uploading...");
+        setUploadStatus("Updating...");
         const uploadedImageUrl = await uploadImageToCloudinary(imgURL);
         ////console.log("Image uploaded to Cloudinary at:", uploadedImageUrl);
 
-        setUploadStatus("Upload successful!");
+        setUploadStatus("Updated successfully!");
         const uid = currentUser.uid; // Replace with the actual user's UID
         const updatedData =  {
           username: data.username,
@@ -158,7 +142,7 @@ export default function SocialMediaForm() {
         setIsFirstLogin(false);
 
       } catch (error) {
-        setUploadStatus("Upload failed");
+        setUploadStatus("Update failed");
         console.error("Error uploading the image:", error);
       }
     } else {
@@ -316,7 +300,7 @@ export default function SocialMediaForm() {
           
         >Update
         </button>
-           <span>{isSubmitting && <Loading type="spin" color="white"  height="20%" width="20%"/>}</span>
+           <span>{isSubmitting && <Loading type="spin" color="blue"  height="20%" width="20%"/>}</span>
       </form>
       {uploadStatus && <p className="text-center text-3xl text-green-400">{uploadStatus}</p>}
     </div>

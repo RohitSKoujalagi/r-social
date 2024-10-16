@@ -13,7 +13,7 @@ import notify from './notify';
 import Loading from './Loading';
 import Login from './Login';
 import storeUser from '../../utils/addUser';
-import { getFirestore, doc, setDoc, addDoc, collection } from "firebase/firestore";
+import { getFirestore, doc, setDoc, addDoc, collection ,getDocs,query,where} from "firebase/firestore";
 import { useUsers } from '../context/UserContext';
 import { ref, set } from "firebase/database"
 import { realtimeDB } from '../../utils/init-firebase';
@@ -32,7 +32,9 @@ export default function Register() {
 
   const {currentUser,registerUzer,loginWithProvider,setCurrentUser,db,}=useAuth();
 
-  const {isFirstLogin,setIsFirstLogin,getUserDetailsById,userExists} =useUsers();
+  const [exists,setExists]=useState(true);
+
+  const {isFirstLogin,setIsFirstLogin,getUserDetailsById,userExists,transformCloudinaryURL} =useUsers();
 
   //Realtime DB
   // const writeToDatabase =async (user) => {
@@ -45,23 +47,7 @@ export default function Register() {
   //   });
   // };
 
-  const transformCloudinaryURL = (url) => {
 
-    if(url==="https://i.pinimg.com/736x/90/d1/ac/90d1ac48711f63c6a290238c8382632f.jpg")
-    {
-      return url;
-    }
-    // Define the transformations you want to apply
-    const transformations = 'q_auto,f_auto,h_500,w_500,c_auto';
-  
-    // Find the index where '/upload' occurs
-    const uploadIndex = url.indexOf('/upload') + '/upload'.length;
-  
-    // Insert the transformations right after '/upload'
-    const transformedURL = url.slice(0, uploadIndex) + `/${transformations}` + url.slice(uploadIndex);
-  
-    return transformedURL;
-  };
   
   const srcSetter=()=>{
 
@@ -107,43 +93,56 @@ export default function Register() {
       try{
 
         
- 
+        
+        const usersRef = collection(db, 'users');
+      const q = query(usersRef, where('email', '==', result.user.email));
+      
+      try {
+        const querySnapshot = await getDocs(q);
+        // setExists(!querySnapshot.empty);
+        console.log(querySnapshot.empty);
+
+        if(querySnapshot.empty)
+          {
+           console.log("does not exist");
+           
+            const docRef=await addDoc(collection(db,"users"),
+            {
+              uid: user.uid,
+              username: "",
+              email: user.email,
+              profilePictureURL: user.providerData[0].photoURL,
+              bio: 'This is a bio',
+              followers: [],
+              following: [],
+              accountPrivacy: 'public',
+              notificationPreferences: {
+                email: true,
+                push: true
+              },
+              twoFactorEnabled: false,
+              posts: [],
+              accountStatus: 'active',
+              verificationStatus: 'unverified',
+              postsLiked:[]
+            }
+      
+            
+            //
+            ).then((res)=>{
+              setIsFirstLogin(true);   
+            }).catch((err)=>{
+                console.error(err)
+            })
+          }
+        
+      } catch (error) {
+        console.error("Error checking email: ", error);
+        // setExists(false);
+      } 
        //console.log(user)
- 
-       const docRef=await addDoc(collection(db,"users"),
-       {
-         uid: user.uid,
-         username: "",
-         email: user.email,
-         profilePictureURL: user.providerData[0].photoURL,
-         bio: 'This is a bio',
-         followers: [],
-         following: [],
-         accountPrivacy: 'public',
-         notificationPreferences: {
-           email: true,
-           push: true
-         },
-         twoFactorEnabled: false,
-         posts: [],
-         accountStatus: 'active',
-         verificationStatus: 'unverified',
-         postsLiked:[]
-       }
- 
-       
-       //
-       ).then((res)=>{
-         setIsFirstLogin(true);
-         ////console.log("Document written with ID: ", res.id);
-         ////console.log("Response is", res._key.path.segments[1]);
- 
-         
- 
- 
-       }).catch((err)=>{
-           console.error(err)
-       })
+      
+
  
      
  

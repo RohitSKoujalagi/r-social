@@ -21,7 +21,7 @@ import { storage } from "../../utils/init-firebase";
 export default function AddPost() {
   const navigate=useNavigate();
   const { register, handleSubmit, formState: { errors,isSubmitting,isSubmitted } } = useForm();
-  const [progress,setProgress]=useState("0%")
+  const [progress,setProgress]=useState("0")
   const [mediaURL, setMediaURL] = useState(null);
   const [uploadStatus, setUploadStatus] = useState("");
   const [imgURL, setPostMediaURL] = useState("");
@@ -30,29 +30,14 @@ export default function AddPost() {
   const videoRef = useRef(null);
 
 
+
   const cloudinaryCore = new Cloudinary({ cloud_name: import.meta.env.VITE_CLOUDINARY_CLOUD_NAME });
 
   const {currentUser,registerUzer,loginWithProvider,setCurrentUser,db,isFirstLogin}=useAuth();
 
-  const transformCloudinaryURL = (url) => {
 
-    if(url==="https://i.pinimg.com/736x/90/d1/ac/90d1ac48711f63c6a290238c8382632f.jpg")
-    {
-      return url;
-    }
-    // Define the transformations you want to apply
-    const transformations = 'q_auto,f_auto,h_500,w_500,c_auto';
-  
-    // Find the index where '/upload' occurs
-    const uploadIndex = url.indexOf('/upload') + '/upload'.length;
-  
-    // Insert the transformations right after '/upload'
-    const transformedURL = url.slice(0, uploadIndex) + `/${transformations}` + url.slice(uploadIndex);
-  
-    return transformedURL;
-  };
 
-  const {setIsFirstLogin}=useUsers()
+  const {setIsFirstLogin,transformCloudinaryURL}=useUsers()
   const srcSetter=()=>{
     if(currentUser)
     {
@@ -119,7 +104,7 @@ export default function AddPost() {
                 mediaURL:downloadURL,
                 type:mediaType,
                 comments:[],
-                postURL:`http://localhost:5173/${currentUser.username}/posts/${data.title}`,
+                postURL:`https://rohitskoujalagi.github.io/r-social/${currentUser.username}/posts/`,
                 likes:[],
                 uid:currentUser.uid,
                 

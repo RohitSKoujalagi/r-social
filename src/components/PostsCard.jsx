@@ -90,7 +90,7 @@ const PostsCard = (post) => {
           <img src={post.post.mediaURL} alt="post media" className="w-full h-60 object-cover" />
         ) : (
           
-          <video controls={(isLiked)}  id='post-video' className="w-full h-60 object-cover" preload='metadata' ref={videoRef}   >
+          <video controls={(true)}  id='post-video' className="w-full h-60 object-cover" preload='metadata' ref={videoRef}   >
             <source src={post.post.mediaURL} type="video/mp4" />
             Your browser does not support the video tag.
           </video>

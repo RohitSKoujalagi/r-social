@@ -5,6 +5,7 @@ import { useAuth } from './AuthContext'
 // import { ref, onValue,get } from "firebase/database";
 
 
+
 const UserContext=createContext({
     userArray:[],
     
@@ -22,7 +23,7 @@ export default function UserContextProvider({children})
     const [uzerFollowArray,setUzerFollowArray]=useState([]);
     // const [initialState,setInitialState]=useState(false)
     const [isFirstLogin, setIsFirstLogin] = useState(false);
-    console.log(currentUser?.username);
+    // console.log(currentUser?.username);
     
     const users = [];
     const [isUsersFollowing, setUsersIsFollowing] = useState([])
@@ -63,6 +64,28 @@ export default function UserContextProvider({children})
   //     })
   //  }
 
+  const transformCloudinaryURL = (url) => {
+
+    if(url==="https://i.pinimg.com/736x/90/d1/ac/90d1ac48711f63c6a290238c8382632f.jpg")
+    {
+      return url;
+    }
+    if(url.includes("google"))
+    {
+      return url;
+    }
+    // Define the transformations you want to apply
+    const transformations = 'q_auto,f_auto,h_500,w_500,c_fill,g_auto';
+  
+    // Find the index where '/upload' occurs
+    const uploadIndex = url.indexOf('/upload') + '/upload'.length;
+  
+    // Insert the transformations right after '/upload'
+    const transformedURL = url.slice(0, uploadIndex) + `/${transformations}` + url.slice(uploadIndex);
+  
+    return transformedURL;
+  };
+
 
   const getValueByKey = (arrayOfObjects,uid,key) => {
     arrayOfObjects.forEach((obj) => {
@@ -95,6 +118,9 @@ export default function UserContextProvider({children})
     }
 
    }
+
+
+
 
 
 
@@ -372,6 +398,7 @@ export default function UserContextProvider({children})
      handleLike,
      setPostsLoaded,
      postsLoaded,
+     transformCloudinaryURL
   
 
 

@@ -6,6 +6,7 @@ import { useDebounce } from './Debounce';
 import { NavLink } from 'react-router-dom';
 import ProfilesSrchSkeleton from './ProfilesSrchSkeleton';
 import PostsCard from './PostsCard'
+import { useUsers } from '../context/UserContext';
 
 const SearchPage = () => {
 
@@ -15,19 +16,12 @@ const SearchPage = () => {
   const [postSearchResults, setPostSearchResults] = useState([]);
   const [loading, setLoading] = useState(false);
   const [show,setShow]=useState({user:false,post:false});
+  const {transformCloudinaryURL}=useUsers();
 
 
   const [debouncedSearch] = useDebounce(searchTerm);
 
-  const transformCloudinaryURL = (url) => {
-    if (url === "https://i.pinimg.com/736x/90/d1/ac/90d1ac48711f63c6a290238c8382632f.jpg") {
-      return url;
-    }
-    const transformations = 'q_auto,f_auto,h_500,w_500,c_auto';
-    const uploadIndex = url.indexOf('/upload') + '/upload'.length;
-    const transformedURL = url.slice(0, uploadIndex) + `/${transformations}` + url.slice(uploadIndex);
-    return transformedURL;
-  };
+
 
   const highlightText = (text, searchTerm) => {
     if (!searchTerm) return text;

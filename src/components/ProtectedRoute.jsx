@@ -25,7 +25,7 @@ function ProtectedRoute({ children }) {
     },[currentUser])
     
     useEffect(() => {
-  console.log(isFirstLogin);
+  // console.log(isFirstLogin);
   
   if(isFirstLogin)
     {
