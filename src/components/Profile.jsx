@@ -1,13 +1,14 @@
-import React,{useEffect,Suspense, useState, useCallback} from 'react'
+import React,{useEffect,useRef, useState, useCallback} from 'react'
 import { useAuth } from '../context/AuthContext';
 // import {currentUser} from '../context/AuthContext'
 import ProfilePlaceholder from '../assets/ProfilePlaceholder.webp'
-import { getFirestore, doc, setDoc, addDoc, collection,getDocs,query,where } from "firebase/firestore";
+import { getFirestore, doc, setDoc, addDoc, collection,getDocs,query,where,deleteDoc, documentId } from "firebase/firestore";
 
-import {useNavigate,Outlet, useParams,NavLink} from 'react-router-dom'
+import {useNavigate,Outlet, useParams,NavLink, replace} from 'react-router-dom'
 import {useUsers} from '../context/UserContext'
 import FirstLoginForm from './FirstLoginForm';
 import MyPosts from './MyPosts';
+import { auth,db } from '../../utils/init-firebase';
 
 
 function Profile() {
@@ -20,24 +21,27 @@ function Profile() {
   const [showPosts,setShowPosts]=useState(false);
   const [userType,setUserType]=useState();
 
+  const posts=useRef(null);
+
   
   const {isFirstLogin,
     setIsFirstLogin,getUserDetailsById,getUsers,userArray,isFollowing,getValueByKey,setDisplayUser,displayUser,setIsFollowing,transformCloudinaryURL}=useUsers();
 
 
     const handlePosts=() => { 
+      
       if(username==="me")
-      {
-        setUserType("me");
-        setShowPosts((val)=>!val);
-      }
-      else
-      {
-        setUserType("specific");
-        setShowPosts((val)=>!val);
-
-
-      }
+        {
+          setUserType("me");
+          setShowPosts((val)=>!val);
+          
+        }
+        else
+        {
+          setUserType("specific");
+          setShowPosts((val)=>!val);
+        }
+         posts.current?.scrollIntoView({ block: "center", behavior: 'smooth'});
      }
 
     
@@ -45,15 +49,13 @@ function Profile() {
     useEffect(() => {
       
        userArray?.forEach((obj) => {
-        if(username===obj["username"])
-          {            
-            setUserDetail(obj);
-            
-            ////console.log("Mount"); 
-          }
+        const foundUser = userArray?.find(obj => obj.username === username);
+      if (foundUser) {
+        setUserDetail(foundUser);
+      }
       });
     
-    }, [userArray])
+    }, [userArray,username])
 
 
     
@@ -78,6 +80,48 @@ function Profile() {
 
   function handleProfileEdit(){
     navigate("/r-social/firstLogin")
+  }
+
+  async function  handleProfileDelete()
+  {
+    if(confirm("Do you want to DELETE your account? 🥺"))
+    {
+      const user=auth.currentUser;
+
+      if(user)
+      {
+        try {
+          // Delete from Firestore
+
+          const querySnapshot = await getDocs(query(collection(db, "users"), where("uid", "==", user.uid)));
+
+          querySnapshot.forEach(async(docu)=>{
+            const documentId=docu.id;
+            await deleteDoc(doc(db, "users", documentId));
+            return;
+          })
+
+          // Delete user from Firebase Auth
+          await user.delete();
+
+          alert(`User ${user.email} deleted successfully`);
+          navigate("/r-social/register", { replace: true });
+
+        } catch (error) {
+
+          alert("Error deleting user account: ", error);
+          navigate("/r-social/profile", { replace: true });
+        }
+    } else {
+      // No user is currently signed in
+      alert("No user is currently signed in.");
+    }
+    }
+    else
+    {
+      alert("Welcome back Champ! 🥳🍾")
+    }
+    
   }
 
 
@@ -135,7 +179,10 @@ function Profile() {
             <span> Followers</span>
             </div>
         </li>
+        
+
         <li className="flex flex-col items-center justify-around">
+         
           <button onClick={handlePosts}>
 
             <svg className="w-4 fill-current text-blue-500" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
@@ -143,10 +190,12 @@ function Profile() {
                     d="M9 12H1v6a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-6h-8v2H9v-2zm0-1H0V5c0-1.1.9-2 2-2h4V2a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v1h4a2 2 0 0 1 2 2v6h-9V9H9v2zm3-8V2H8v1h4z" />
             </svg>
           </button>
+          
             <div>{(username==="me")?(currentUser?.posts?.length):(userArray && userDetail?.posts?.length)}
             <span> Posts</span>
             </div>
         </li>
+       
     </ul>
     {username==="me" && <div className="p-4 border-t mx-8 mt-2">
         <div className="p-4  rounded-lg flex items-center justify-center">
@@ -157,16 +206,47 @@ function Profile() {
   </svg>
 </button>
     </div>
+
+    <div className="p-1   rounded-lg flex items-center justify-center">
+        <button onClick={handleProfileDelete} className="  mx-auto rounded-full bg-red-600 hover:shadow-lg font-semibold text-white px-4 py-2 flex items-center">
+          
+
+  Delete Profile
+  <svg fill="#000000" className="h-6 w-6 fill-current ml-2" x="0px" y="0px" version="1.1" id="Capa_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" 
+	 width="100" height="100" viewBox="0 0 50 50"
+	 xml:space="preserve">
+<g>
+	<path d="M36.335,5.668h-8.167V1.5c0-0.828-0.672-1.5-1.5-1.5h-12c-0.828,0-1.5,0.672-1.5,1.5v4.168H5.001c-1.104,0-2,0.896-2,2
+		s0.896,2,2,2h2.001v29.168c0,1.381,1.119,2.5,2.5,2.5h22.332c1.381,0,2.5-1.119,2.5-2.5V9.668h2.001c1.104,0,2-0.896,2-2
+		S37.438,5.668,36.335,5.668z M14.168,35.67c0,0.828-0.672,1.5-1.5,1.5s-1.5-0.672-1.5-1.5v-21c0-0.828,0.672-1.5,1.5-1.5
+		s1.5,0.672,1.5,1.5V35.67z M22.168,35.67c0,0.828-0.672,1.5-1.5,1.5s-1.5-0.672-1.5-1.5v-21c0-0.828,0.672-1.5,1.5-1.5
+		s1.5,0.672,1.5,1.5V35.67z M25.168,5.668h-9V3h9V5.668z M30.168,35.67c0,0.828-0.672,1.5-1.5,1.5s-1.5-0.672-1.5-1.5v-21
+		c0-0.828,0.672-1.5,1.5-1.5s1.5,0.672,1.5,1.5V35.67z"/>
+</g>
+</svg>
+
+          </button>
+    </div>
     </div>
 }
 
-</div>}
-
 </div>
-{
-  showPosts && <MyPosts user={userType}/>
+
 }
 
+
+
+
+</div>
+
+
+
+  <div ref={posts} id='posts' >
+
+ { showPosts &&  <MyPosts user={userType}/>}
+
+
+  </div>
     </>
   )
 }
