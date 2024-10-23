@@ -20,6 +20,17 @@
         }
       })(window.location);
     </script>
+
+<script>
+  var pathname = window.location.pathname;
+  if (!pathname.endsWith("/")) {
+    pathname += "/";
+    console.log(pathname);
+    
+    window.location.replace(pathname);
+  }
+</script>
+
   </head>
   <body>
     <div id="root"></div>
