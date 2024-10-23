@@ -216,7 +216,7 @@ export default function SocialMediaForm() {
           onInput={(e) => {
             // console.log(e.target.value);
             
-            setSearchTerm(e.target.value);
+            setSearchTerm(e.target.value.trim());
             if(e.target.value==="")
             {
               setShow(false);
@@ -228,7 +228,18 @@ export default function SocialMediaForm() {
             },maxLength:{
               value:18,
               message:"Username must be atmost 18 characters"
-            } })}
+            } ,
+            // pattern: {
+            //   value: /^[a-zA-Z]+(?:[a-zA-Z'-.]+\s[a-zA-Z]+)*$/,
+            //   message:
+            //     "No spaces allowed between characters. Only valid spaces between words are allowed.",
+            // },
+            // validate: (value) =>
+            //   value === value.trim || "Username cannot have trailing spaces",
+          
+
+          
+          })}
             className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
             placeholder="Your username"
           />
