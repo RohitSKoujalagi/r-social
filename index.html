@@ -20,6 +20,17 @@
         }
       })(window.location);
     </script>
+
+<script>
+  var pathname = window.location.pathname;
+  if (!pathname.endsWith("/")) {
+    pathname += "/";
+    console.log(pathname);
+    
+    window.location.replace(pathname);
+  }
+</script>
+
     <script type="module" crossorigin src="/r-social/assets/index-B6JxYiAb.js"></script>
     <link rel="stylesheet" crossorigin href="/r-social/assets/index-VPXn5jpY.css">
   </head>
