@@ -1,19 +1,24 @@
-import React,{useEffect,useRef, useState, useCallback} from 'react'
+import React,{useEffect,useRef, useState} from 'react'
 import { useAuth } from '../context/AuthContext';
 // import {currentUser} from '../context/AuthContext'
 import ProfilePlaceholder from '../assets/ProfilePlaceholder.webp'
-import { getFirestore, doc, setDoc, addDoc, collection,getDocs,query,where,deleteDoc, documentId } from "firebase/firestore";
+import { getFirestore, doc, setDoc, addDoc, collection,getDocs,query,where,deleteDoc, documentId,updateDoc,onSnapshot,getDoc, arrayUnion } from "firebase/firestore";
 
 import {useNavigate,Outlet, useParams,NavLink, replace} from 'react-router-dom'
 import {useUsers} from '../context/UserContext'
 import FirstLoginForm from './FirstLoginForm';
 import MyPosts from './MyPosts';
 import { auth,db } from '../../utils/init-firebase';
+import {peerConnection} from '../../utils/RTC-vars';
 
 
 function Profile() {
-  const {currentUser,db} =useAuth();
+  const {currentUser} =useAuth();
+
   // const userCount=[];
+
+  const unsubBroadcasterRef = useRef(null); 
+
   let {username}=useParams();
   const navigate=useNavigate();
 
@@ -44,6 +49,307 @@ function Profile() {
          posts.current?.scrollIntoView({ block: "center", behavior: 'smooth'});
      }
 
+
+
+  const exitBroadcast=() => { 
+    peerConnection.close();
+
+    if (unsubBroadcasterRef.current) unsubBroadcasterRef.current();
+   }
+
+    const joinBroadcast = async () => {
+
+      const roomId=userDetail?.roomID;
+
+      
+      const viewerDocId=userDetail?.viewerDocId;
+
+      // const wantedDoc=doc("/rooms/bEu7AryAVZDOjgIYHRxX/typj9luV1BOqw4KxbbslbtTAzwY2 /aaca5db8-f80d-44da-a7ae-365b8d407c57")
+      const roomDocRef = doc(db, 'rooms', roomId);  // Reference the room document
+      const viewerColRef=collection(roomDocRef,`${currentUser.uid.trim()}`);
+      // console.log("*****\n",viewerColRef,"\n*****");
+      
+      const viewerDocRef = doc(db,"rooms",roomId,currentUser.uid,userDetail.viewerDocId);
+      // console.log("*****\n",viewerDocRef,"\n*****");
+      // console.log(currentUser?.uid);
+      const docRef=doc(db,"rooms",roomId,currentUser?.uid,viewerDocId);
+      // onSnapshot(docRef,(snapshot)=>{
+      //   //console.log(snapshot.data());
+        
+      //   getDoc(docRef)
+
+      // })
+      
+      
+      // //console.log(viewerDocRef);
+      
+
+
+
+      try {
+        
+        const docRef =  await getDoc(roomDocRef);
+        const viewers=docRef?.data().viewers || [];
+        console.log(viewers);
+        
+        if(!viewers.includes(currentUser?.uid))
+        {
+            await setDoc(roomDocRef,{"viewers":[...viewers,currentUser?.uid]});
+            console.log("User not in []");
+            
+
+            // const viewerId=collection(roomRef,"offerCandidates") 
+
+            // await setDoc(offerCandidates,)
+        }
+        else
+        {
+          console.log("Already a viewer");
+        }
+         
+        
+      } catch (error) {
+        console.log("error: ",error);
+        
+      }
+
+
+      console.log("room id from viewer (verify) ⚠️ ",userDetail?.roomID);
+      console.log("#### viewerDocId (verify) ⚠️###  ",userDetail?.viewerDocId);
+      
+      
+      // peerConnection.onicecandidate = async event => {
+      //   if (event.candidate) {
+      //     console.log("===Answer Ice Candidates coming===");
+      //     console.log(event.candidate.toJSON());
+      //     // addDoc(answerCandidates,event.candidate.toJSON());
+      //     await updateDoc(docRef, {
+      //       "answerIceCandidates": arrayUnion(event.candidate.toJSON())  
+      //     });
+      //   }
+      // };
+      const answerIceCandidates=collection(docRef,"answerIceCandidates")
+
+      peerConnection.onicecandidate = event => {
+        if (event.candidate) {
+          console.log("===viewer Ice Candidates coming===");
+          console.log(event.candidate.toJSON());
+          addDoc(answerIceCandidates,event.candidate.toJSON());
+        }
+      };
+
+      const remoteVideo = document.getElementById("remoteVideo");
+      const video = document.createElement("video");
+      console.log(remoteVideo);
+      remoteVideo.autoPlay=true;
+      remoteVideo.muted=true;
+      
+      
+      peerConnection.ontrack = async (event) => {
+        
+        if (event.streams[0]) {
+            video.srcObject=event.streams[0];
+            console.log('Remote stream received:', event.streams[0]);
+            remoteVideo.srcObject = event.streams[0];
+        } else {
+            console.warn("No stream found in ontrack event.");
+        }
+      };
+
+
+      //get offer
+
+      onSnapshot(roomDocRef,async snapshot=>{
+        
+        {
+          if(peerConnection.connectionState!=="connected")
+            {
+
+              if(snapshot.exists())
+              {
+                // console.log("snapshot exists");
+                
+                const viewerData=snapshot.data();
+      
+                if(viewerData?.offer)
+                {
+                // console.log("have ");
+    
+                  try {
+                    console.log("Offer: ", viewerData.offer);
+                        const offer = new RTCSessionDescription(viewerData.offer);
+                          peerConnection.setRemoteDescription(offer).then(()=>{
+    
+                            const offerIceCandidates=collection(docRef,"offerIceCandidates")
+                            unsubBroadcasterRef.current=  onSnapshot(offerIceCandidates,(snapshot => {
+                            
+                              snapshot.docChanges().forEach(async change => {
+                                console.log("change in offerIceCandidates");
+                      
+                                if (change.type === 'added') 
+                                  {
+                                  console.log("broadcaster added");
+                                 
+                                    
+                                    const candidate = new RTCIceCandidate(change.doc.data());
+                                     peerConnection.addIceCandidate(candidate)
+                                  
+                               
+                                }
+                              });
+                            }));
+    
+                          }).catch(err=>console.error(err))
+    
+                          
+    
+                          console.log("remoteDesc was set at viewer END");
+                          
+                          const answer = await peerConnection.createAnswer();
+                        await peerConnection.setLocalDescription(answer);
+            
+        
+                        await setDoc(docRef, { 
+                          answer: {
+                          type: answer.type,
+                          sdp: answer.sdp
+                      } });
+    
+                  } catch (error) {
+                    console.error(error);
+                    
+                  }
+      
+      
+                
+                                 
+                }
+                else
+                {
+                  console.log("no OFFER 😢");
+                  
+                }
+              }
+            }
+
+        }
+
+
+      })
+
+
+
+
+    // Initialize an array to collect offerIceCandidates
+        // let offerIceCandidatesArray = [];
+        // const uniqueOfferIceCandidates = new Set();
+
+
+        // unsubBroadcasterRef.current = onSnapshot(docRef,async (Qsnapshot) => {
+        //   if (Qsnapshot.exists()) {
+        //     const broadcasterData = Qsnapshot.data();
+        //     const offerIceCandidates = broadcasterData?.offerIceCandidates?.slice(-1) || [];
+        //     console.log("offerIceCandidate size \n", offerIceCandidates?.length);
+
+        //     try {
+        //       const candidate = new RTCIceCandidate(offerIceCandidates);
+
+        //       await peerConnection.addIceCandidate(candidate)
+
+        //       await updateDoc(docRef,{
+        //         "answerIceCandidates":arrayUnion(candidate)
+        //       })
+
+        //     } catch (error) {
+        //       console.error(error);
+              
+        //     }
+
+        //     // offerIceCandidatesArray?.forEach(async (candidateData) => {
+        //     //   const candidateString = JSON.stringify(candidateData);  // Convert candidate to string to use with Set
+
+        //     //   if (!uniqueOfferIceCandidates.has(candidateString)) {
+        //     //     uniqueOfferIceCandidates.add(candidateString);  // Add to Set to track unique candidates
+        //     //     const candidate = new RTCIceCandidate(candidateData);
+        //     //     console.log("Adding unique offer ICE candidate from broadcaster: ", candidate);
+                
+        //     //     try {
+        //     //       await peerConnection.addIceCandidate(candidate);
+        //     //       offerIceCandidatesArray.push(candidateData);  // Add to array only if successful
+        //     //     } catch (error) {
+        //     //       console.error("Error adding answer ICE candidate:", error);
+        //     //     }
+        //     //   }
+        //     // });
+
+        //     // // Push to Firestore only if there are new unique candidates
+        //     // if (offerIceCandidatesArray.length > 0) {
+        //     //   await updateDoc(viewerDocRef, {
+        //     //     answerIceCandidates: arrayUnion(...offerIceCandidatesArray)
+        //     //   });
+        //     //   offerIceCandidatesArray = [];  // Reset the array after updating Firestore
+        //     // }
+
+        //     // Collect candidates in the array
+           
+        //   } else {
+        //     console.log("***room snapshot dne");
+        //   }
+        // });
+
+
+      
+
+
+
+      
+      
+
+      
+      
+
+
+
+
+      peerConnection.addEventListener('icegatheringstatechange', () => {
+        console.log(
+            `ICE gathering state changed: ${peerConnection.iceGatheringState}`);
+      });
+    
+      peerConnection.addEventListener('connectionstatechange', () => {
+        console.log(`Connection state change: ${peerConnection.connectionState}`);
+      });
+    
+      peerConnection.addEventListener('signalingstatechange', () => {
+        console.log(`Signaling state change: ${peerConnection.signalingState}`);
+      });
+    
+      peerConnection.addEventListener('iceconnectionstatechange ', () => {
+        console.log(
+            `ICE connection state change: ${peerConnection.iceConnectionState}`);
+      });
+
+      peerConnection.addEventListener('track', (event) => {
+        console.log(
+            `ICE connection state change: ${peerConnection.iceConnectionState}`);
+            console.log(event);
+            
+      });
+      
+
+      
+
+      
+
+
+          console.log(peerConnection.connectionState ," AND ", peerConnection.iceConnectionState);
+
+
+    };
+    
+
+
+    
     
 
     useEffect(() => {
@@ -56,6 +362,7 @@ function Profile() {
       });
     
     }, [userArray,username])
+
 
 
     
@@ -212,9 +519,9 @@ function Profile() {
           
 
   Delete Profile
-  <svg fill="#000000" className="h-6 w-6 fill-current ml-2" x="0px" y="0px" version="1.1" id="Capa_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" 
+  <svg fill="#000000" className="h-6 w-6 fill-current ml-2" x="0px" y="0px" version="1.1" id="Capa_1" xmlns="http://www.w3.org/2000/svg" xmlnsXlink="http://www.w3.org/1999/xlink" 
 	 width="100" height="100" viewBox="0 0 50 50"
-	 xml:space="preserve">
+	 xmlSpace="preserve">
 <g>
 	<path d="M36.335,5.668h-8.167V1.5c0-0.828-0.672-1.5-1.5-1.5h-12c-0.828,0-1.5,0.672-1.5,1.5v4.168H5.001c-1.104,0-2,0.896-2,2
 		s0.896,2,2,2h2.001v29.168c0,1.381,1.119,2.5,2.5,2.5h22.332c1.381,0,2.5-1.119,2.5-2.5V9.668h2.001c1.104,0,2-0.896,2-2
@@ -227,8 +534,44 @@ function Profile() {
 
           </button>
     </div>
+<br />
+<NavLink to={"/r-social/profile/me/goLive"}>
+
+    <div className="p-1  mx-auto rounded-full bg-red-600 hover:shadow-lg font-semibold text-white px-4 py-2 flex items-center  justify-center">
+        
+          
+
+  Go LIVE  &nbsp;
+  <svg width="25px" height="25px" viewBox="0 0 24 24" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlnsXlink="http://www.w3.org/1999/xlink">
+    <g id="🔍-Product-Icons" stroke="none" strokeWidth="1" fill="none" fillRule="evenodd">
+        <g id="ic_fluent_live_24_filled" fill="#FFFFFF" fillRule="nonzero">
+            <path d="M6.34277267,4.93867691 C6.73329697,5.3292012 6.73329697,5.96236618 6.34277267,6.35289047 C3.21757171,9.47809143 3.21757171,14.5450433 6.34277267,17.6702443 C6.73329697,18.0607686 6.73329697,18.6939336 6.34277267,19.0844579 C5.95224838,19.4749821 5.3190834,19.4749821 4.92855911,19.0844579 C1.02230957,15.1782083 1.02230957,8.84492646 4.92855911,4.93867691 C5.3190834,4.54815262 5.95224838,4.54815262 6.34277267,4.93867691 Z M19.0743401,4.93867691 C22.9805896,8.84492646 22.9805896,15.1782083 19.0743401,19.0844579 C18.6838158,19.4749821 18.0506508,19.4749821 17.6601265,19.0844579 C17.2696022,18.6939336 17.2696022,18.0607686 17.6601265,17.6702443 C20.7853275,14.5450433 20.7853275,9.47809143 17.6601265,6.35289047 C17.2696022,5.96236618 17.2696022,5.3292012 17.6601265,4.93867691 C18.0506508,4.54815262 18.6838158,4.54815262 19.0743401,4.93867691 Z M9.3094225,7.81205295 C9.69994679,8.20257725 9.69994679,8.83574222 9.3094225,9.22626652 C7.77845993,10.7572291 7.77845993,13.2394099 9.3094225,14.7703724 C9.69994679,15.1608967 9.69994679,15.7940617 9.3094225,16.184586 C8.91889821,16.5751103 8.28573323,16.5751103 7.89520894,16.184586 C5.58319778,13.8725748 5.58319778,10.1240641 7.89520894,7.81205295 C8.28573323,7.42152866 8.91889821,7.42152866 9.3094225,7.81205295 Z M16.267742,7.81205295 C18.5797531,10.1240641 18.5797531,13.8725748 16.267742,16.184586 C15.8772177,16.5751103 15.2440527,16.5751103 14.8535284,16.184586 C14.4630041,15.7940617 14.4630041,15.1608967 14.8535284,14.7703724 C16.384491,13.2394099 16.384491,10.7572291 14.8535284,9.22626652 C14.4630041,8.83574222 14.4630041,8.20257725 14.8535284,7.81205295 C15.2440527,7.42152866 15.8772177,7.42152866 16.267742,7.81205295 Z M12.0814755,10.5814755 C12.9099026,10.5814755 13.5814755,11.2530483 13.5814755,12.0814755 C13.5814755,12.9099026 12.9099026,13.5814755 12.0814755,13.5814755 C11.2530483,13.5814755 10.5814755,12.9099026 10.5814755,12.0814755 C10.5814755,11.2530483 11.2530483,10.5814755 12.0814755,10.5814755 Z" id="🎨-Color">
+
+</path>
+        </g>
+    </g>
+</svg>
+
+          
+    </div>
+</NavLink>
+
+
     </div>
 }
+
+
+{
+  (username!=="me" && userArray && userDetail?.roomID!=="")?
+  <>
+  
+  <button onClick={joinBroadcast} className='text-2xl rounded-lg  bg-green-400 p-4 m-4'>Join Live </button>
+  <button onClick={exitBroadcast} className='text-2xl rounded-lg  bg-red-400 p-4 m-4'>Exit Live </button>
+  <hr />
+  </>
+  :""
+}
+  <video width={1280} height={720} className='mx-auto border-cyan-500 rounded-2xl border-4' id="remoteVideo"  autoPlay playsInline></video>
 
 </div>
 

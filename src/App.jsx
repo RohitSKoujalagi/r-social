@@ -24,6 +24,7 @@ import {Outlet} from 'react-router-dom'
 
 useEffect(()=>{
 
+  // console.log(currentUser);
   
  currentUser && userArray && userArray.map((val,ind,arr)=>{
     if(val.uid===currentUser?.uid)
@@ -47,17 +48,16 @@ useEffect(()=>{
 
      <div className='flex flex-wrap flex-row justify-around gap-x-1.5 gap-y-1.5 m-0 p-0 duration-800 '>
     {
-     userArray && userArray.map((value,index,array)=>
+     userArray && userArray?.map((value,index,array)=>
       <>
        { (currentUser?.uid!==value.uid) &&  <Suspense fallback={<ProfilesSkeleton/>}>
      
-         { (value.username!=="") && <ProfileCards key={index} username={value.username } followers={ value.followers.length } following={ value.following.length } userBio={value.bio } userPic={transformCloudinaryURL(value.profilePictureURL)} userUID={value.uid} isFollowing={isFollowing}  /> }      
+         { (value.username!=="") && <ProfileCards key={index} username={value.username } followers={ value.followers?.length } following={ value.following?.length } userBio={value.bio } userPic={transformCloudinaryURL(value.profilePictureURL)} userUID={value.uid} isFollowing={isFollowing}  /> }      
         </Suspense>
       }
         </ >
         
-        
-        
+
       )
     }
     </div> 

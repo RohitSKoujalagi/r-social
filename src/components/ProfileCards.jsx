@@ -10,8 +10,8 @@ const ProfileCards = ({userBio,username,followers,following,userPic,userUID,isFo
     const {currentUser}=useAuth();
 
     const truncate = (str, maxLength) => {
-        if (str.length <= maxLength) return str;
-        return str.slice(0, maxLength) + '...';
+        if (str?.length <= maxLength) return str;
+        return str?.slice(0, maxLength) + '...';
       };
   return (
     <>
