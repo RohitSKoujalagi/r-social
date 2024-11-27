@@ -3,7 +3,7 @@ name: Deploy
 on:
   push:
     branches:
-      - feature/WebRTC
+      - main
 
 jobs:
   build:
