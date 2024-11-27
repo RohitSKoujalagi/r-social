@@ -70,7 +70,7 @@ export default function UserContextProvider({children})
     {
       return url;
     }
-    if(url.includes("google"))
+    if(url?.includes("google"))
     {
       return url;
     }
@@ -78,10 +78,10 @@ export default function UserContextProvider({children})
     const transformations = 'q_auto,f_auto,h_500,w_500,c_fill,g_auto';
   
     // Find the index where '/upload' occurs
-    const uploadIndex = url.indexOf('/upload') + '/upload'.length;
+    const uploadIndex = url?.indexOf('/upload') + '/upload'.length;
   
     // Insert the transformations right after '/upload'
-    const transformedURL = url.slice(0, uploadIndex) + `/${transformations}` + url.slice(uploadIndex);
+    const transformedURL = url?.slice(0, uploadIndex) + `/${transformations}` + url?.slice(uploadIndex);
   
     return transformedURL;
   };

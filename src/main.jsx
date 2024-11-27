@@ -23,6 +23,8 @@ import FollowerList from './components/FollowerList.jsx'
 import AddPost from './components/AddPost.jsx'
 import MyPosts from './components/MyPosts.jsx'
 import SearchPage from './components/SearchPage.jsx'
+import LiveStream from './components/LiveStream.jsx'
+import Live from './components/Live.jsx'
 
 
 
@@ -131,6 +133,25 @@ const router = createBrowserRouter([
           <ComplexNavbar/>
           <FollowerList/>          
           </ProtectedRoute>
+          </>
+        },
+        {
+          path:"/r-social/profile/:username/goLive",
+          element:<>
+          <ProtectedRoute>
+
+          <ComplexNavbar/>
+          <LiveStream/>          
+          </ProtectedRoute>
+          </>
+        },
+        {
+          path:"/r-social/live",
+          element:<>
+          
+          <ComplexNavbar/>
+          <Live/>          
+          
           </>
         },
         {
