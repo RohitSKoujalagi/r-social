@@ -124,7 +124,8 @@ export default function Register() {
               posts: [],
               accountStatus: 'active',
               verificationStatus: 'unverified',
-              postsLiked:[]
+              postsLiked:[],
+              roomID:""
             }
       
             
@@ -206,7 +207,8 @@ try{
         posts: [],
         accountStatus: 'active',
         verificationStatus: 'unverified',
-        postsLiked:[]
+        postsLiked:[],
+        roomID:""
       }
 
       
